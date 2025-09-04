@@ -113,10 +113,7 @@ iframe {
 <div class="homepage" id="homepage">
   <h1 class="title">kR0NYX Games!</h1>
   <p class="description">Choose a game to play!</p>
-  <div class="game-grid">
-    <a href="#" class="game-card" data-game="basketrandom">Basket Random</a>
-    <a href="#" class="game-card" data-game="game2">Drift Boss</a>
-  </div>
+  <div class="game-grid" id="game-grid"></div>
 </div>
 
 <!-- Loading Screen -->
@@ -132,11 +129,14 @@ iframe {
 <iframe id="game-frame" allowfullscreen></iframe>
 
 <script>
-// Game mapping
+// Game mapping: name: URL
 const gameMap = {
-  basketrandom: "https://tylerpalko.github.io/gamehub/basketrandom/",
-  game2: "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fwww.hoodamath.com%2Fmobile%2Fgames%2Fdrift-boss%2Fgame.html&title=Drift%20Boss"
-  };
+  "Basket Random": "https://tylerpalko.github.io/gamehub/basketrandom/",
+  "Drift Boss": "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fwww.hoodamath.com%2Fmobile%2Fgames%2Fdrift-boss%2Fgame.html&title=Drift%20Boss",
+  "10 Bullets": "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fbobydob.github.io%2Fg56n2et&title=10%20Bullets",
+  "10 More Bullets": "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fbobydob.github.io%2Fj73kd42o&title=10%20More%20Bullets",
+  "Fireboy & Watergirl: Crystal Temple": "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fincrediblewebsite.github.io%2Ffbwg4%2F&title=Fireboy%20and%20Watergirl%20in%20The%20Crystal%20Temple"
+};
 
 // Elements
 const homepage = document.getElementById('homepage');
@@ -144,6 +144,23 @@ const loadingScreen = document.getElementById('loading-screen');
 const progressBar = document.getElementById('progress-bar');
 const gameFrame = document.getElementById('game-frame');
 const canvas = document.getElementById('particles');
+const gameGrid = document.getElementById('game-grid');
+
+// Auto-generate game cards
+Object.keys(gameMap).forEach(name => {
+  const card = document.createElement('a');
+  card.href = "#";
+  card.className = "game-card";
+  card.textContent = name;
+  card.dataset.url = gameMap[name];
+  card.addEventListener('click', e => {
+    e.preventDefault();
+    homepage.style.display = 'none';
+    loadingScreen.style.display = 'flex';
+    loadGame(card.dataset.url);
+  });
+  gameGrid.appendChild(card);
+});
 
 // Particle animation
 if (canvas) {
@@ -172,19 +189,6 @@ if (canvas) {
   }
   animateParticles();
 }
-
-// Game card click
-document.querySelectorAll('.game-card').forEach(card => {
-  card.addEventListener('click', e => {
-    e.preventDefault();
-    const gameKey = card.getAttribute('data-game');
-    if (gameMap[gameKey]) {
-      homepage.style.display = 'none';
-      loadingScreen.style.display = 'flex';
-      loadGame(gameMap[gameKey]);
-    }
-  });
-});
 
 // Load game with progress
 function loadGame(url) {
