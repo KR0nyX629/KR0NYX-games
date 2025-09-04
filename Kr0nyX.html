@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>kR0NYX</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: #111;
+  color: white;
+  font-family: sans-serif;
+}
+
+/* Homepage styles */
+.homepage {
+  text-align: center;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 3rem;
+  transition: transform 0.3s ease;
+}
+.title:hover {
+  transform: rotate(-2deg) scale(1.05);
+}
+
+.description {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.game-card {
+  background: #222;
+  padding: 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: white;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.game-card:hover {
+  transform: scale(1.1);
+  background: #333;
+}
+
+/* Loading screen */
+#loading-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: black;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.loading-text {
+  font-size: 2rem;
+  margin-top: 1rem;
+}
+
+#particles {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+.progress-container {
+  width: 80%;
+  height: 20px;
+  background: #333;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 2rem;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(to right, #00f, #0ff);
+  transition: width 0.1s ease;
+}
+
+/* Fullscreen iframe */
+iframe {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  z-index: 1;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Homepage -->
+<div class="homepage" id="homepage">
+  <h1 class="title">kR0NYX Games!</h1>
+  <p class="description">Choose a game to play!</p>
+  <div class="game-grid">
+    <a href="#" class="game-card" data-game="basketrandom">Basket Random</a>
+    <a href="#" class="game-card" data-game="game2">Drift Boss</a>
+  </div>
+</div>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <canvas id="particles"></canvas>
+  <div class="loading-text">Loading...</div>
+  <div class="progress-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+</div>
+
+<!-- Game Frame -->
+<iframe id="game-frame" allowfullscreen></iframe>
+
+<script>
+// Game mapping
+const gameMap = {
+  basketrandom: "https://tylerpalko.github.io/gamehub/basketrandom/",
+  game2: "https://kr0nyx629.github.io/VanishUB/gameX.html?url=https%3A%2F%2Fwww.hoodamath.com%2Fmobile%2Fgames%2Fdrift-boss%2Fgame.html&title=Drift%20Boss"
+  };
+
+// Elements
+const homepage = document.getElementById('homepage');
+const loadingScreen = document.getElementById('loading-screen');
+const progressBar = document.getElementById('progress-bar');
+const gameFrame = document.getElementById('game-frame');
+const canvas = document.getElementById('particles');
+
+// Particle animation
+if (canvas) {
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const particles = Array.from({ length: 100 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 3 + 1,
+    speed: Math.random() * 2 + 1
+  }));
+
+  function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.y += p.speed;
+      if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+    });
+    requestAnimationFrame(animateParticles);
+  }
+  animateParticles();
+}
+
+// Game card click
+document.querySelectorAll('.game-card').forEach(card => {
+  card.addEventListener('click', e => {
+    e.preventDefault();
+    const gameKey = card.getAttribute('data-game');
+    if (gameMap[gameKey]) {
+      homepage.style.display = 'none';
+      loadingScreen.style.display = 'flex';
+      loadGame(gameMap[gameKey]);
+    }
+  });
+});
+
+// Load game with progress
+function loadGame(url) {
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 2;
+    progressBar.style.width = `${progress}%`;
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        gameFrame.src = url;
+        gameFrame.style.display = 'block';
+        loadingScreen.style.display = 'none';
+      }, 300);
+    }
+  }, 50);
+}
+</script>
+
+</body>
+</html>
